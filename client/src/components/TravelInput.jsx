@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 export default function TravelInput({ className }) {
   const [data, setData] = useState({ location: '', days: '' });
+  const [showItineraryLink, setShowItineraryLink] = useState(true);
 
   return (
     <div className={`${className} bg-white p-8 md:p-20 flex flex-col justify-center`}>
@@ -24,7 +25,7 @@ export default function TravelInput({ className }) {
             <input 
               type="number" 
               value={data.days}
-              placeholder="7"
+              placeholder="2"
               className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-800"
               onChange={(e) => setData({...data, days: e.target.value})}
             />
@@ -35,6 +36,23 @@ export default function TravelInput({ className }) {
           </button>
         </form>
       </div>
+      {showItineraryLink && (
+        <a
+          href="/itinerary"
+          className="
+            fixed bottom-6 right-6
+            bg-gray-300 text-gray-800
+            px-10 py-6 rounded-full
+            shadow-md
+            hover:bg-gray-500 hover:text-gray-900
+            transition-colors
+            text-lg font-semibold
+            z-50
+          "
+        >
+          View Itinerary
+        </a>
+      )}
     </div>
   );
 }

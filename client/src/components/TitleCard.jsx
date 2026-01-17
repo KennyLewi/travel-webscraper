@@ -1,4 +1,5 @@
 export default function TitleCard({ className, logo }) {
+
   return (
     <div
       className={`${className} fixed top-0 left-0 w-full bg-white border-b border-gray-200 p-6 md:p-8 flex flex-col justify-center items-center text-center shadow-lg z-50`}
@@ -17,7 +18,6 @@ export default function TitleCard({ className, logo }) {
         </h1>
       </div>
 
-      {/* --- Subtitle / Whimsical touch --- */}
       <p className="text-gray-500 text-sm md:text-lg italic">
         Fella for your planna ;D
       </p>
