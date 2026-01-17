@@ -74,5 +74,5 @@ async def get_audio_and_transcribe(url):
                 os.remove(tmp_path)
 
 if __name__ == "__main__":
-    tiktok_url = "https://www.tiktok.com/@davidteathercodes/video/7074717081563942186"
+    tiktok_url = "https://www.tiktok.com/@human_edition/video/7569612755678891282"
     asyncio.run(get_audio_and_transcribe(tiktok_url))
