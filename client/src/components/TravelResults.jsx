@@ -6,12 +6,15 @@ export default function TravelResults({className, places}) {
 
   places = places || [
     [
-      { name: "Eiffel Tower", description: "Iconic landmark with stunning views.", duration: "30"},
-      { name: "Louvre Museum", description: "World’s largest art museum.", duration: "45" },
+      { name: "Marina Bay Sands", description: "Iconic landmark with stunning views.", duration: "30"},
+      { name: "Merlion Park Singapore", description: "Singapore's iconic mascot.", duration: "45" },
+      { name: "Singapore Flyer", description: "One of the world's largest observation wheels.", duration: "15" },
+      { name: "Art Science Museum", description: "Exquisite modern art.", duration: "120" },
     ],
     [
-      { name: "Marina Bay Sands", description: "Iconic landmark with stunning views.", duration: "60"},
-      { name: "Singapore Flyer", description: "World’s largest art museum.", duration: "75" },
+      { name: "The Star Vista", description: "Modern neighborhood shopping mall.", duration: "60"},
+      { name: "Haw Par Villa", description: "An exciting theme park.", duration: "180" },
+      { name: "NUS Campus", description: "National public research university.", duration: "120" },
     ],
   ];
 
@@ -43,49 +46,21 @@ export default function TravelResults({className, places}) {
   // const [routes, setRoutes] = useState([])
 
   // useEffect(() => {
-  //   async function fetchData() {
-  //     try {
-  //       const [positionsRes, centersRes, routesRes] = await Promise.all([
-  //         fetch("positions_url"),
-  //         fetch("centers_url"),
-  //         fetch("routes_url")
-  //       ]);
-
-  //       // Parse all JSON in parallel
-  //       const [positionsData, centersData, routesData] = await Promise.all([
-  //         positionsRes.json(),
-  //         centersRes.json(),
-  //         routesRes.json()
-  //       ]);
-
-  //       // Update state
-  //       setPositions(positionsData);
-  //       localStorage.setItem("positions", JSON.stringify(positionsData));
-  //       setCenters(centersData);
-  //       localStorage.setItem("centers", JSON.stringify(centersData));
-  //       setRoutes(routesData);
-  //       localStorage.setItem("routes", JSON.stringify(routesData));
-  //     } catch (error) {
-  //       console.error("Error fetching places:", error);
+  //     const savedPositions = localStorage.getItem("positions");
+  //     if (savedPositions) {
+  //       setPositions(JSON.parse(savedPositions))
   //     }
-  //   }
 
-  //   const savedPositions = localStorage.getItem("positions");
-  //   if (savedPositions) {
-  //     setPositions(JSON.parse(savedPositions))
-  //   }
+  //     const savedCenters = localStorage.getItem("centers");
+  //     if (savedCenters) {
+  //       setCenters(JSON.parse(savedCenters))
+  //     }
 
-  //   const savedCenters = localStorage.getItem("centers");
-  //   if (savedCenters) {
-  //     setCenters(JSON.parse(savedCenters))
-  //   }
+  //     const savedRoutes = localStorage.getItem("routes");
+  //     if (savedRoutes) {
+  //       setRoutes(JSON.parse(savedRoutes))
+  //     }
 
-  //   const savedRoutes = localStorage.getItem("routes");
-  //   if (savedRoutes) {
-  //     setRoutes(JSON.parse(savedRoutes))
-  //   }
-
-  //   fetchData();
   // }, []);
 
   return (
@@ -172,7 +147,7 @@ export default function TravelResults({className, places}) {
           className="
             fixed bottom-6 right-6
             bg-gray-300 text-gray-800
-            px-10 py-6 rounded-full
+            px-8 py-4 rounded-full
             shadow-md
             hover:bg-gray-500 hover:text-gray-900
             transition-colors

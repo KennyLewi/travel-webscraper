@@ -18,7 +18,7 @@ function App() {
           </div>
           <div className="flex-1 pt-25">
             <Routes>
-              <Route path="/" element={<TravelInput className="w-full h-full" />} />
+              <Route path="/" element={<TravelInput className="w-full h-full" loadingLogo="globe_2.gif" />} />
               <Route path="/itinerary" element={<TravelResults className="w-full h-full"/>} />
             </Routes>
           </div>
