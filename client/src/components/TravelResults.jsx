@@ -46,49 +46,21 @@ export default function TravelResults({className, places}) {
   // const [routes, setRoutes] = useState([])
 
   // useEffect(() => {
-  //   async function fetchData() {
-  //     try {
-  //       const [positionsRes, centersRes, routesRes] = await Promise.all([
-  //         fetch("positions_url"),
-  //         fetch("centers_url"),
-  //         fetch("routes_url")
-  //       ]);
-
-  //       // Parse all JSON in parallel
-  //       const [positionsData, centersData, routesData] = await Promise.all([
-  //         positionsRes.json(),
-  //         centersRes.json(),
-  //         routesRes.json()
-  //       ]);
-
-  //       // Update state
-  //       setPositions(positionsData);
-  //       localStorage.setItem("positions", JSON.stringify(positionsData));
-  //       setCenters(centersData);
-  //       localStorage.setItem("centers", JSON.stringify(centersData));
-  //       setRoutes(routesData);
-  //       localStorage.setItem("routes", JSON.stringify(routesData));
-  //     } catch (error) {
-  //       console.error("Error fetching places:", error);
+  //     const savedPositions = localStorage.getItem("positions");
+  //     if (savedPositions) {
+  //       setPositions(JSON.parse(savedPositions))
   //     }
-  //   }
 
-  //   const savedPositions = localStorage.getItem("positions");
-  //   if (savedPositions) {
-  //     setPositions(JSON.parse(savedPositions))
-  //   }
+  //     const savedCenters = localStorage.getItem("centers");
+  //     if (savedCenters) {
+  //       setCenters(JSON.parse(savedCenters))
+  //     }
 
-  //   const savedCenters = localStorage.getItem("centers");
-  //   if (savedCenters) {
-  //     setCenters(JSON.parse(savedCenters))
-  //   }
+  //     const savedRoutes = localStorage.getItem("routes");
+  //     if (savedRoutes) {
+  //       setRoutes(JSON.parse(savedRoutes))
+  //     }
 
-  //   const savedRoutes = localStorage.getItem("routes");
-  //   if (savedRoutes) {
-  //     setRoutes(JSON.parse(savedRoutes))
-  //   }
-
-  //   fetchData();
   // }, []);
 
   return (
