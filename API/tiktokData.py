@@ -33,6 +33,8 @@ async def get_data_by_url(video_url):
         with open("single_video_data.json", "w", encoding="utf-8") as f:
             json.dump(video_info, f, indent=4, ensure_ascii=False)
 
+        return video_info
+
 if __name__ == "__main__":
     url = "https://www.tiktok.com/@davidteathercodes/video/7074717081563942186"
     asyncio.run(get_data_by_url(url))

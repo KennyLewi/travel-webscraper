@@ -69,6 +69,7 @@ async def get_audio_and_transcribe(url):
             result = model.transcribe(tmp_path, fp16=False)
             print("\n--- TRANSCRIPT ---")
             print(result['text'])
+            return result['text']
         finally:
             if os.path.exists(tmp_path):
                 os.remove(tmp_path)
