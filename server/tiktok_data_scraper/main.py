@@ -1,10 +1,10 @@
 import asyncio
 from datetime import datetime
 import json
-from tiktokDownloader import download_video_stealth
-from tiktokData import get_data_by_url
-from tiktokTranscribe import get_audio_and_transcribe
-from videoTextExtractor import fast_extract_text
+from tiktok_data_scraper.tiktokDownloader import download_video_stealth
+from tiktok_data_scraper.tiktokData import get_data_by_url
+from tiktok_data_scraper.tiktokTranscribe import get_audio_and_transcribe
+from tiktok_data_scraper.videoTextExtractor import fast_extract_text
 
 
 async def process_single_tiktok(url):
