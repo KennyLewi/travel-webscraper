@@ -3,30 +3,15 @@ import { useNavigate } from "react-router-dom";
 
 export default function TravelInput({ className, loadingLogo }) {
   const [data, setData] = useState({ location: '', days: '' });
-  const [showItineraryLink, setShowItineraryLink] = useState(true);
+  // const [showItineraryLink, setShowItineraryLink] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const showItineraryLink = localStorage.getItem("itineraryData");
 
   async function handlePlanTrip() {
     setIsLoading(true);
-    // setTimeout(() => {
-    //   navigate("/itinerary");
-    //   setIsLoading(false);
-    // }, 3 * 1000);
     try {
-      // const [positionsRes, centersRes, routesRes] = await Promise.all([
-      //     fetch("positions_url"),
-      //     fetch("centers_url"),
-      //     fetch("routes_url")
-      // ]);
-
-      // const [positionsData, centersData, routesData] = await Promise.all([
-      //   positionsRes.json(),
-      //   centersRes.json(),
-      //   routesRes.json()
-      // ]);
-
-      const response = await fetch("http://127.0.0.1:5000/api/generate-itinerary",
+      const fetchPromise = fetch("http://127.0.0.1:5000/api/generate-itinerary",
         {
           method:"POST",
           headers: {
@@ -38,13 +23,20 @@ export default function TravelInput({ className, loadingLogo }) {
             "ocr_transcript": "string"
           })
         }
-      )
-      
-      const itineraryData = await response.json();
-      
+      ).then(res => res.json());
+
+      const timeoutPromise = new Promise(resolve =>
+        setTimeout(() => {
+          setIsLoading(false);
+          resolve();
+        }, 3000)
+      );
+
+      const itineraryData = await Promise.all([fetchPromise, timeoutPromise])
+        .then(([data]) => data);
+
+      console.log(itineraryData.itinerary)
       localStorage.setItem("itineraryData", JSON.stringify(itineraryData.itinerary));
-      // localStorage.setItem("centers", JSON.stringify(centersData));
-      // localStorage.setItem("routes", JSON.stringify(routesData));
 
       navigate("/itinerary");
       

@@ -6,94 +6,43 @@ export default function TravelResults({className}) {
 
   const [selectedDay, setSelectedDay] = useState(0);
 
-  const positions = [
-    [
-      [1.2837574999999999, 103.8591065], 
-      [1.2867449, 103.85438719999999], 
-      [1.2892987999999999, 103.86313679999999], 
-      [1.2862738, 103.8592663]
-    ],
-    [
-      [1.3068072, 103.7883997], 
-      [1.2830833, 103.78194060000001], 
-      [1.2976493, 103.77669159999999]
-    ],
-    [
-      [1.3068072, 103.7883997], 
-      [1.2830833, 103.78194060000001], 
-      [1.2976493, 103.77669159999999]
-    ],
-  ];
+  const savedItinerary = localStorage.getItem("itineraryData");
+  const places = [];
+  const coordinates = [];
+  const centers = [];
+  const routes = [];
 
-  const center = [
-    [1.28651875, 103.85897419999999],
-    [1.2958466, 103.78234396666666],
-    [1.2958466, 103.78234396666666]
-  ];
+  if (savedItinerary) {
+    const itineraryList = JSON.parse(savedItinerary);
+    
+    itineraryList.forEach(day => {
+        if (day.route_url) {
+            routes.push(day.route_url);
+        }
+        
+        const tempLocations = [];
+        // Add each location to the locations array
+        if (day.locations) {
+          day.locations.forEach(loc => {
+            tempLocations.push(loc);
+          });
+        }
+        places.push(tempLocations);
 
-  const intializePlaces = () => {
-    const savedItinerary = localStorage.getItem("itineraryData");
-    if (savedItinerary) {
-      const currRoutes = [];
-      const locations = [];
-      const itineraryList = JSON.parse(savedItinerary);
-      
-      itineraryList.forEach(day => {
-          if (day.route_url) {
-              currRoutes.push(day.route_url);
-            }
-          
-          const tempLocations = [];
-          // Add each location to the locations array
-          if (day.locations) {
-            day.locations.forEach(loc => {
-              tempLocations.push(loc);
-            });
-          }
-          locations.push(tempLocations);
-      });
-      console.log(locations);
-      return locations
-    }
+        const tempCoordinates = [];
+        // Add each location to the locations array
+        if (day.coordinates) {
+          day.coordinates.forEach(loc => {
+            tempCoordinates.push(loc);
+          });
+        }
+        coordinates.push(tempCoordinates);
+
+        if (day.center) {
+          centers.push(day.center)
+        }
+    });
   }
-
-  const intializeRoutes = () => {
-    const savedItinerary = localStorage.getItem("itineraryData");
-    if (savedItinerary) {
-      const currRoutes = [];
-      const itineraryList = JSON.parse(savedItinerary);
-      
-      itineraryList.forEach(day => {
-          if (day.route_url) {
-              currRoutes.push(day.route_url);
-            }
-      });
-      console.log(currRoutes);
-      return currRoutes
-    }
-  }
-
-  const [places, setPlaces] = useState(() => intializePlaces());
-  // const [centers, setCenters] = useState([]);
-  const [routes, setRoutes] = useState(() => intializeRoutes());
-
-  // useEffect(() => {
-  //     const savedPositions = localStorage.getItem("positions");
-  //     if (savedPositions) {
-  //       setPositions(JSON.parse(savedPositions))
-  //     }
-
-  //     const savedCenters = localStorage.getItem("centers");
-  //     if (savedCenters) {
-  //       setCenters(JSON.parse(savedCenters))
-  //     }
-
-  //     const savedRoutes = localStorage.getItem("routes");
-  //     if (savedRoutes) {
-  //       setRoutes(JSON.parse(savedRoutes))
-  //     }
-
-  // }, []);
 
   return (
     <div className={`${className} bg-white p-8 md:p-20 flex flex-col justify-center`}>
@@ -108,8 +57,8 @@ export default function TravelResults({className}) {
           id="map"
           className="w-full h-[400px] md:h-[550px] rounded-2xl shadow-lg border border-gray-200"
         >
-          <Map defaultZoom={14} center={{ lat: center[selectedDay][0], lng: center[selectedDay][1] }}>
-            {positions[selectedDay].map((pos, i) => (
+          <Map defaultZoom={14} center={{ lat: centers[selectedDay][0], lng: centers[selectedDay][1] }}>
+            {coordinates[selectedDay].map((pos, i) => (
               <Marker key={i} position={{ lat: pos[0], lng: pos[1] }} title={pos.name} />
             ))}
           </Map>
