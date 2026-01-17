@@ -44,12 +44,17 @@ def generate_itinerary():
     print(links)
 
     # desc = get_tiktok_data(links[0])
-    result = download_tiktok_video(links[0])
-    print(result)
-    audio_transcript = transcribe_video(result['filename'])
-    print(audio_transcript)
-    video_text = fast_extract_text(result['filename'])
-    print(video_text)
+    description = ""
+    audio_transcript = ""
+    video_text = ""
+    for i in range(min(len(links), 3)):
+        result = download_tiktok_video(links[i])
+        # print(result)
+        audio_transcript += f" {i + 1}." + transcribe_video(result['filename'])
+        # print(audio_transcript)
+        video_text += f" {i + 1}." + " ".join(fast_extract_text(result['filename']))
+        # print(video_text)
+        description += f" {i + 1}." + result['desc']
 
     # travel_json_lst = asyncio.run(scrap_urls(links))
 
@@ -59,9 +64,9 @@ def generate_itinerary():
     # all_desc = " ".join([d['metadata']['desc'] for d in travel_json_lst])
     # all_audio = " ".join([d['audio_transcript'] for d in travel_json_lst])
     # all_on_screen = " ".join([text for d in travel_json_lst for text in d['on_screen_text']])
-    all_on_screen = " ".join(video_text)
+    # all_on_screen = " ".join(video_text)
 
-    plans = parser.get_locations(audio_transcript, result['desc'], all_on_screen)
+    plans = parser.get_locations(audio_transcript, description, video_text)
     plans_as_dicts = [day.model_dump() for day in plans]
     json_str = json.dumps(plans_as_dicts, indent=2)
 
