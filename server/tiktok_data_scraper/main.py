@@ -49,7 +49,7 @@ async def process_single_tiktok(url):
     return results
 
 
-async def main(url_list):
+async def scrap_urls(url_list):
     for url in url_list:
         try:
             await process_single_tiktok(url)
@@ -64,4 +64,4 @@ if __name__ == "__main__":
         "https://www.tiktok.com/@cakes_n_ale/video/7563782866342038806",
     ]
 
-    asyncio.run(main(urls))
+    asyncio.run(scrap_urls(urls))
