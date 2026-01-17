@@ -19,13 +19,13 @@ class RouteUrlBuilder:
         load_dotenv()
         self._GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-    # Returns a list of place_ids associated with the place names
-    def _get_place_ids(self, places):
+    # Returns a tuple of (place_ids, place_locations) associated with the place names
+    def _get_place_information(self, places):
         url = 'https://places.googleapis.com/v1/places:searchText'
         headers = {
             "Content-Type": "application/json",
             "X-Goog-Api-Key": self._GOOGLE_API_KEY,
-            "X-Goog-FieldMask": "places.displayName,places.id"
+            "X-Goog-FieldMask": "places.displayName,places.id,places.location"
         }
 
         responses = []
@@ -38,14 +38,24 @@ class RouteUrlBuilder:
             responses.append(json.loads(response.text))
 
         place_ids = []
+        place_locations = []
         for r in responses:
             place_ids.append(r["places"][0]["id"])
+            latitude = r["places"][0]["location"]["latitude"]
+            longitude = r["places"][0]["location"]["longitude"]
+            place_locations.append([latitude, longitude])
 
-        return place_ids
+        self._place_information = (place_ids, place_locations)
+
+        return self._place_information
 
     # Get url from places
     def get_url(self, places):
-        place_ids = self._get_place_ids(places)
+        if hasattr(self, "_place_information"):
+            place_ids, place_locations = self._place_information
+        else:
+            place_ids, place_locations = self._get_place_information(places)
+
         dir_url = "https://www.google.com/maps/dir/?api=1"
         
         final_url = dir_url
@@ -68,3 +78,29 @@ class RouteUrlBuilder:
             count -= 1
 
         return final_url
+
+    def get_coordinates(self, places):
+        if hasattr(self, "_place_information"):
+            place_ids, place_locations = self._place_information
+        else:
+            place_ids, place_locations = self._get_place_information(places)
+        
+        return place_locations
+    
+    def get_coordinate_center(self, places):
+        if hasattr(self, "_place_information"):
+            place_ids, place_locations = self._place_information
+        else:
+            place_ids, place_locations = self._get_place_information(places)
+
+        sum_lat = sum(lat for lat, _ in place_locations)
+        sum_lon = sum(lon for _, lon in place_locations)
+        n = len(place_locations)
+        
+        center_lat = sum_lat / n
+        center_lon = sum_lon / n
+
+        return [center_lat, center_lon]
+
+r = RouteUrlBuilder()
+print(r.get_coordinates(queries))
