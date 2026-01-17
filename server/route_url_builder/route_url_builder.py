@@ -19,13 +19,13 @@ class RouteUrlBuilder:
         load_dotenv()
         self._GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-    # Returns a list of place_ids associated with the place names
-    def _get_place_ids(self, places):
+    # Returns a tuple of (place_ids, place_locations) associated with the place names
+    def _get_place_information(self, places):
         url = 'https://places.googleapis.com/v1/places:searchText'
         headers = {
             "Content-Type": "application/json",
             "X-Goog-Api-Key": self._GOOGLE_API_KEY,
-            "X-Goog-FieldMask": "places.displayName,places.id"
+            "X-Goog-FieldMask": "places.displayName,places.id,places.location"
         }
 
         responses = []
@@ -38,14 +38,18 @@ class RouteUrlBuilder:
             responses.append(json.loads(response.text))
 
         place_ids = []
+        place_locations = []
         for r in responses:
             place_ids.append(r["places"][0]["id"])
+            latitude = r["places"][0]["location"]["latitude"]
+            longitude = r["places"][0]["location"]["longitude"]
+            place_locations.append((latitude, longitude))
 
-        return place_ids
+        return (place_ids, place_locations)
 
     # Get url from places
     def get_url(self, places):
-        place_ids = self._get_place_ids(places)
+        place_ids, place_locations = self._get_place_information(places)
         dir_url = "https://www.google.com/maps/dir/?api=1"
         
         final_url = dir_url
@@ -68,3 +72,10 @@ class RouteUrlBuilder:
             count -= 1
 
         return final_url
+
+    def get_coordinates(self, places):
+        place_ids, place_locations = self._get_place_information(places)
+        return place_locations
+
+r = RouteUrlBuilder()
+print(r.get_coordinates(queries))
