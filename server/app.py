@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from tiktok_link_scraper.tiktok_link_scraper import TikTokLinkScraper
 from tiktok_data_scraper.tiktokScrapper import download_tiktok_video
+from tiktok_data_scraper.transcribeAudio import transcribe_video
 
 app = Flask(__name__)
 CORS(app)
@@ -42,6 +43,8 @@ def generate_itinerary():
     # desc = get_tiktok_data(links[0])
     result = download_tiktok_video(links[0])
     print(result)
+    audio_transcript = transcribe_video(result['filename'])
+    print(audio_transcript)
 
     # travel_json_lst = asyncio.run(scrap_urls(links))
 
