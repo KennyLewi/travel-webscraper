@@ -35,10 +35,10 @@ def generate_itinerary():
     """
     data = request.json
     print(data)
-    place = data.place
+    query = data.place + f"{data.place} {data.days} itinerary"
 
     scraper = TikTokLinkScraper()
-    links = scraper.get_links(place)
+    links = scraper.get_links(query)
     travel_json_lst = asyncio.run(scrap_urls(links))
 
     parser = TravelTranscriptParser()
