@@ -43,13 +43,19 @@ class RouteUrlBuilder:
             place_ids.append(r["places"][0]["id"])
             latitude = r["places"][0]["location"]["latitude"]
             longitude = r["places"][0]["location"]["longitude"]
-            place_locations.append((latitude, longitude))
+            place_locations.append([latitude, longitude])
 
-        return (place_ids, place_locations)
+        self._place_information = (place_ids, place_locations)
+
+        return self._place_information
 
     # Get url from places
     def get_url(self, places):
-        place_ids, place_locations = self._get_place_information(places)
+        if hasattr(self, "_place_information"):
+            place_ids, place_locations = self._place_information
+        else:
+            place_ids, place_locations = self._get_place_information(places)
+
         dir_url = "https://www.google.com/maps/dir/?api=1"
         
         final_url = dir_url
@@ -74,7 +80,18 @@ class RouteUrlBuilder:
         return final_url
 
     def get_coordinates(self, places):
-        place_ids, place_locations = self._get_place_information(places)
+        if hasattr(self, "_place_information"):
+            place_ids, place_locations = self._place_information
+        else:
+            place_ids, place_locations = self._get_place_information(places)
+        
+        return place_locations
+    
+    def get_coordinate_center(self, places):
+        if hasattr(self, "_place_information"):
+            place_ids, place_locations = self._place_information
+        else:
+            place_ids, place_locations = self._get_place_information(places)
 
         sum_lat = sum(lat for lat, _ in place_locations)
         sum_lon = sum(lon for _, lon in place_locations)
@@ -82,8 +99,8 @@ class RouteUrlBuilder:
         
         center_lat = sum_lat / n
         center_lon = sum_lon / n
-        
-        return place_locations
+
+        return [center_lat, center_lon]
 
 r = RouteUrlBuilder()
 print(r.get_coordinates(queries))
