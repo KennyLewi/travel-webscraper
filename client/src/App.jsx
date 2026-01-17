@@ -19,7 +19,7 @@ function App() {
           <div className="flex-1 pt-25">
             <Routes>
               <Route path="/" element={<TravelInput className="w-full h-full" />} />
-              <Route path="/about" element={<TravelResults className="w-full h-full"/>} />
+              <Route path="/itinerary" element={<TravelResults className="w-full h-full"/>} />
             </Routes>
           </div>
         </div>
