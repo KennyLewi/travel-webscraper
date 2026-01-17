@@ -14,13 +14,17 @@ class TravelTranscriptParser:
         self._client = genai.Client()
         self._model = "gemini-2.5-flash-lite"
         self._instructions = (
-            "You are a travel data extractor. From the provided TikTok transcript, "
-            "extract a list of attractions, landmarks, or restaurants that were recommended. "
+            "You are a travel data extractor. Extract specific names of attractions, landmarks, "
+            "or restaurants from the provided transcripts. "
             "Only give specific names (e.g., 'Disneyland') instead of generic ones (e.g., 'theme park'). "
-            "If a city is mentioned, include it. Format the output as a simple comma-separated list."
+            "If a city is mentioned, include it"
+            "The first part is an audio transcript; the second part contains OCR text from video frames. "
+            "Use the OCR text to correct any misspellings or phonetic errors found in the audio transcript. "
+            "Return only the final, corrected names of the locations."
         )
 
-    def get_locations(self, transcript: str) -> list[str]:
+    def get_locations(self, video_transcript: str, ocr_transcript: str) -> list[str]:
+        user_prompt = f"First Part (Audio Transcript): {video_transcript}, Second Part (OCR Texts): {ocr_transcript}"
         response = self._client.models.generate_content(
             model=self._model,
             config=types.GenerateContentConfig(
@@ -28,7 +32,7 @@ class TravelTranscriptParser:
                 response_mime_type="application/json",
                 response_schema=LocationList,
             ),
-            contents=transcript,
+            contents=user_prompt,
         )
 
         if response.parsed:
