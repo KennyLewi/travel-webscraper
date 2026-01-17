@@ -3,6 +3,7 @@ from flask_cors import CORS
 from tiktok_link_scraper.tiktok_link_scraper import TikTokLinkScraper
 from tiktok_data_scraper.tiktokScrapper import download_tiktok_video
 from tiktok_data_scraper.transcribeAudio import transcribe_video
+from tiktok_data_scraper.videoTextExtractor import fast_extract_text
 
 app = Flask(__name__)
 CORS(app)
@@ -45,6 +46,8 @@ def generate_itinerary():
     print(result)
     audio_transcript = transcribe_video(result['filename'])
     print(audio_transcript)
+    video_text = fast_extract_text(result['filename'])
+    print(video_text)
 
     # travel_json_lst = asyncio.run(scrap_urls(links))
 
