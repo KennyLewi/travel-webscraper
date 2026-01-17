@@ -50,11 +50,14 @@ async def process_single_tiktok(url):
 
 
 async def scrap_urls(url_list):
+    result_lst = []
     for url in url_list:
         try:
-            await process_single_tiktok(url)
+            result = await process_single_tiktok(url)
+            result_lst.append(result)
         except Exception as e:
             print(f"[Error] Failed to process {url}: {e}")
+    return result_lst
 
 if __name__ == "__main__":
     # You can add one or many URLs here

@@ -1,5 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from tiktok_link_scraper.tiktok_link_scraper import TikTokLinkScraper
+from tiktok_data_scraper.main import scrap_urls
+import asyncio
+from parsers.travel_transcript_parser import TravelTranscriptParser
 
 app = Flask(__name__)
 CORS(app)
@@ -31,4 +35,22 @@ def generate_itinerary():
     """
     data = request.json
     print(data)
-    return jsonify({"places": ["Marina Bay Sands", "Art Science Museum", "National University of Singapore"]})
+    place = data.place
+
+    scraper = TikTokLinkScraper()
+    links = scraper.get_links(place)
+    travel_json_lst = asyncio.run(scrap_urls(links))
+
+    parser = TravelTranscriptParser()
+
+    # for loop to merge description, audio transcript and OCR texts into one long string
+    all_desc = " ".join([d['metadata']['desc'] for d in travel_json_lst])
+    all_audio = " ".join([d['audio_transcript'] for d in travel_json_lst])
+    all_on_screen = " ".join([text for d in travel_json_lst for text in d['on_screen_text']])
+        
+
+    locations = parser.get_locations(all_audio, all_on_screen)
+
+    # goes through the list to get their string 
+    return jsonify({"places": locations})
+    # return jsonify({"places": ["Marina Bay Sands", "Art Science Museum", "National University of Singapore"]})
