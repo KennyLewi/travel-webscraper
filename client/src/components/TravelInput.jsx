@@ -9,34 +9,50 @@ export default function TravelInput({ className, loadingLogo }) {
 
   async function handlePlanTrip() {
     setIsLoading(true);
-    setTimeout(() => {
-      navigate("/itinerary");
-      setIsLoading(false);
-    }, 3 * 1000);
-    // try {
-    //   const [positionsRes, centersRes, routesRes] = await Promise.all([
-    //       fetch("positions_url"),
-    //       fetch("centers_url"),
-    //       fetch("routes_url")
-    //   ]);
-
-    //   const [positionsData, centersData, routesData] = await Promise.all([
-    //     positionsRes.json(),
-    //     centersRes.json(),
-    //     routesRes.json()
-    //   ]);
-
-    //   localStorage.setItem("positions", JSON.stringify(positionsData));
-    //   localStorage.setItem("centers", JSON.stringify(centersData));
-    //   localStorage.setItem("routes", JSON.stringify(routesData));
-
+    // setTimeout(() => {
     //   navigate("/itinerary");
-      
-    // } catch (error) {
-    //   console.error("Error fetching places:", error);
-    // } finally {
     //   setIsLoading(false);
-    // }
+    // }, 3 * 1000);
+    try {
+      // const [positionsRes, centersRes, routesRes] = await Promise.all([
+      //     fetch("positions_url"),
+      //     fetch("centers_url"),
+      //     fetch("routes_url")
+      // ]);
+
+      // const [positionsData, centersData, routesData] = await Promise.all([
+      //   positionsRes.json(),
+      //   centersRes.json(),
+      //   routesRes.json()
+      // ]);
+
+      const response = await fetch("http://127.0.0.1:5000/api/generate-itinerary",
+        {
+          method:"POST",
+          headers: {
+              "Content-type": "application/json; charset=UTF-8"
+          },
+          body: JSON.stringify({
+            "video_transcript": "string",
+            "video_description": "string",
+            "ocr_transcript": "string"
+          })
+        }
+      )
+      
+      const itineraryData = await response.json();
+      
+      localStorage.setItem("itineraryData", JSON.stringify(itineraryData.itinerary));
+      // localStorage.setItem("centers", JSON.stringify(centersData));
+      // localStorage.setItem("routes", JSON.stringify(routesData));
+
+      navigate("/itinerary");
+      
+    } catch (error) {
+      console.error("Error fetching places:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
