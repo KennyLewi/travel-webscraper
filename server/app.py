@@ -35,8 +35,8 @@ def generate_itinerary():
     """
     data = request.json
     print(data)
-    query = data.place + f"{data.place} {data.days} itinerary"
-
+    query = data['place'] + f" {data['place']} {data['days']} itinerary"
+    
     scraper = TikTokLinkScraper()
     links = scraper.get_links(query)
     travel_json_lst = asyncio.run(scrap_urls(links))
@@ -54,3 +54,6 @@ def generate_itinerary():
     # goes through the list to get their string 
     return jsonify({"places": locations})
     # return jsonify({"places": ["Marina Bay Sands", "Art Science Museum", "National University of Singapore"]})
+
+if __name__ == "__main__":
+    print("server started")

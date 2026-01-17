@@ -32,3 +32,6 @@ class TikTokLinkScraper:
             links = list(set(links))
             browser.close()
             return links
+        
+scraper = TikTokLinkScraper()
+scraper.get_links("Singapore")
