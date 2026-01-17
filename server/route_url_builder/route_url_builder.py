@@ -75,6 +75,14 @@ class RouteUrlBuilder:
 
     def get_coordinates(self, places):
         place_ids, place_locations = self._get_place_information(places)
+
+        sum_lat = sum(lat for lat, _ in place_locations)
+        sum_lon = sum(lon for _, lon in place_locations)
+        n = len(place_locations)
+        
+        center_lat = sum_lat / n
+        center_lon = sum_lon / n
+        
         return place_locations
 
 r = RouteUrlBuilder()
