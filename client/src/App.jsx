@@ -8,10 +8,15 @@ const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 function App() {
   return (
     <APIProvider apiKey={GOOGLE_API_KEY} onLoad={() => console.log('Maps API has loaded.')}>
-      <div className="flex flex-row w-screen h-screen">
-        <TitleCard className="basis-1/3" />
-        {/* <TravelInput className="basis-2/3" /> */}
-        <TravelResults className="basis-2/3"/>
+      <div className="flex flex-col w-screen h-screen bg-white">
+        <div className="flex-none">
+          <TitleCard className="w-full" logo="planefella.png" />
+        </div>
+        <div className="flex-1 pt-25">
+          <TravelInput className="w-full h-full" />
+          {/* <TravelResults className="w-full h-full"/> */}
+        </div>
+        
       </div>
     </APIProvider>
   );
