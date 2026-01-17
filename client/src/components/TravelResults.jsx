@@ -4,20 +4,6 @@ import { useRef, useState, useEffect } from 'react';
 export default function TravelResults({className}) {
   const mapRef = useRef(null);
 
-  // places = places || [
-  //   [
-  //     { name: "Marina Bay Sands", description: "Iconic landmark with stunning views.", duration: "30"},
-  //     { name: "Merlion Park Singapore", description: "Singapore's iconic mascot.", duration: "45" },
-  //     { name: "Singapore Flyer", description: "One of the world's largest observation wheels.", duration: "15" },
-  //     { name: "Art Science Museum", description: "Exquisite modern art.", duration: "120" },
-  //   ],
-  //   [
-  //     { name: "The Star Vista", description: "Modern neighborhood shopping mall.", duration: "60"},
-  //     { name: "Haw Par Villa", description: "An exciting theme park.", duration: "180" },
-  //     { name: "NUS Campus", description: "National public research university.", duration: "120" },
-  //   ],
-  // ];
-
   const [selectedDay, setSelectedDay] = useState(0);
 
   const positions = [
@@ -32,38 +18,64 @@ export default function TravelResults({className}) {
       [1.2830833, 103.78194060000001], 
       [1.2976493, 103.77669159999999]
     ],
+    [
+      [1.3068072, 103.7883997], 
+      [1.2830833, 103.78194060000001], 
+      [1.2976493, 103.77669159999999]
+    ],
   ];
 
   const center = [
     [1.28651875, 103.85897419999999],
+    [1.2958466, 103.78234396666666],
     [1.2958466, 103.78234396666666]
   ];
 
-  const route = 'https://www.google.com/maps/dir/?api=1&origin=Marina%20Bay%20Sands%20Singapore&origin_place_id=ChIJA5LATO4Z2jER111V-v6abAI&waypoints=Merlion%20Park%20Singapore%7CSingapore%20Flyer&waypoint_place_ids=ChIJBTYg1g4Z2jERp_MBbu5erWY%7CChIJzVHFNqkZ2jERboLN2YrltH8&destination=Art%20Science%20Museum&destination_place_id=ChIJnWdQKQQZ2jERScXuKeFHyIE&travelmode=walking'
-  
-  const [places, setPlaces] = useState([]);
-  const routes = []
-  const locations = []
-  // const [centers, setCenters] = useState([]);
-  // const [routes, setRoutes] = useState([])
-  const savedItinerary = localStorage.getItem("itineraryData");
-  const itineraryList = JSON.parse(savedItinerary)
-  if (savedItinerary) {
-    itineraryList.forEach(day => {
-        if (day.route_url) {
-            routes.push(day.route_url);
+  const intializePlaces = () => {
+    const savedItinerary = localStorage.getItem("itineraryData");
+    if (savedItinerary) {
+      const currRoutes = [];
+      const locations = [];
+      const itineraryList = JSON.parse(savedItinerary);
+      
+      itineraryList.forEach(day => {
+          if (day.route_url) {
+              currRoutes.push(day.route_url);
+            }
+          
+          const tempLocations = [];
+          // Add each location to the locations array
+          if (day.locations) {
+            day.locations.forEach(loc => {
+              tempLocations.push(loc);
+            });
           }
-
-        // Add each location to the locations array
-        if (day.locations) {
-          day.locations.forEach(loc => {
-            locations.push(loc);
-          });
-        }
-    });
-    console.log(locations)
-    setPlaces(locations)
+          locations.push(tempLocations);
+      });
+      console.log(locations);
+      return locations
+    }
   }
+
+  const intializeRoutes = () => {
+    const savedItinerary = localStorage.getItem("itineraryData");
+    if (savedItinerary) {
+      const currRoutes = [];
+      const itineraryList = JSON.parse(savedItinerary);
+      
+      itineraryList.forEach(day => {
+          if (day.route_url) {
+              currRoutes.push(day.route_url);
+            }
+      });
+      console.log(currRoutes);
+      return currRoutes
+    }
+  }
+
+  const [places, setPlaces] = useState(() => intializePlaces());
+  // const [centers, setCenters] = useState([]);
+  const [routes, setRoutes] = useState(() => intializeRoutes());
 
   // useEffect(() => {
   //     const savedPositions = localStorage.getItem("positions");
@@ -106,7 +118,7 @@ export default function TravelResults({className}) {
         {/* --- Compact Route Link --- */}
         <div className="mt-4 w-max">
           <a
-            href={route}
+            href={routes[selectedDay]}
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 bg-gray-200 text-gray-800 dark:text-gray-800 font-semibold rounded-lg shadow hover:bg-gray-400 transition-colors text-sm"
