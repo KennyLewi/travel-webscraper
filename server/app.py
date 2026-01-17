@@ -1,9 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from tiktok_link_scraper.tiktok_link_scraper import TikTokLinkScraper
-from tiktok_data_scraper.main import scrap_urls
-import asyncio
-from parsers.travel_transcript_parser import TravelTranscriptParser
+from tiktok_data_scraper.tiktokScrapper import download_tiktok_video
 
 app = Flask(__name__)
 CORS(app)
@@ -35,25 +33,32 @@ def generate_itinerary():
     """
     data = request.json
     print(data)
-    query = data['place'] + f" {data['place']} {data['days']} itinerary"
-    
+    query = f" {data['place']} {data['days']} days itinerary"
+
     scraper = TikTokLinkScraper()
     links = scraper.get_links(query)
-    travel_json_lst = asyncio.run(scrap_urls(links))
+    print(links)
 
-    parser = TravelTranscriptParser()
+    # desc = get_tiktok_data(links[0])
+    result = download_tiktok_video(links[0])
+    print(result)
 
-    # for loop to merge description, audio transcript and OCR texts into one long string
-    all_desc = " ".join([d['metadata']['desc'] for d in travel_json_lst])
-    all_audio = " ".join([d['audio_transcript'] for d in travel_json_lst])
-    all_on_screen = " ".join([text for d in travel_json_lst for text in d['on_screen_text']])
-        
+    # travel_json_lst = asyncio.run(scrap_urls(links))
 
-    locations = parser.get_locations(all_audio, all_on_screen)
+    # parser = TravelTranscriptParser()
+
+    # # for loop to merge description, audio transcript and OCR texts into one long string
+    # all_desc = " ".join([d['metadata']['desc'] for d in travel_json_lst])
+    # all_audio = " ".join([d['audio_transcript'] for d in travel_json_lst])
+    # all_on_screen = " ".join([text for d in travel_json_lst for text in d['on_screen_text']])
+
+    # plans = parser.get_locations(all_audio, all_desc, all_on_screen)
+    # plans_as_dicts = [day.model_dump() for day in plans]
+    # json_str = json.dumps(plans_as_dicts, indent=2)
 
     # goes through the list to get their string 
-    return jsonify({"places": locations})
-    # return jsonify({"places": ["Marina Bay Sands", "Art Science Museum", "National University of Singapore"]})
+    # return json_str
+    return jsonify({"places": ["Marina Bay Sands", "Art Science Museum", "National University of Singapore"]})
 
 if __name__ == "__main__":
     print("server started")
