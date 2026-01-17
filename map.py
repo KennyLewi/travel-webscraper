@@ -4,7 +4,7 @@ import os
 import json
 from urllib.parse import quote
 
-load_dotenv(dotenv_path=".gitignore")
+load_dotenv(dotenv_path=".env")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Dummy queries
@@ -15,11 +15,6 @@ query_4 = "Art Science Museum"
 queries = [query_1, query_2, query_3, query_4]
 place_ids = ['ChIJA5LATO4Z2jER111V-v6abAI', 'ChIJBTYg1g4Z2jERp_MBbu5erWY',
              'ChIJzVHFNqkZ2jERboLN2YrltH8', 'ChIJnWdQKQQZ2jERScXuKeFHyIE']
-
-def json_data(q):
-    return {
-        "textQuery" : q
-    }
 
 # Returns a list of place_ids associated with the place names
 def get_place_ids(places):
@@ -34,7 +29,9 @@ def get_place_ids(places):
     for place in places:
         response = requests.post(url,
                          headers=headers,
-                         json=json_data(place))
+                         json={
+                            "textQuery": place
+                         })
         responses.append(json.loads(response.text))
 
     place_ids = []
@@ -43,28 +40,31 @@ def get_place_ids(places):
 
     return place_ids
 
-place_ids = get_place_ids(queries)
-print(place_ids)
+# Get url from places
+def get_url(places):
+    place_ids = get_place_ids(places)
+    dir_url = "https://www.google.com/maps/dir/?api=1"
+    
+    final_url = dir_url
+    count = len(queries) - 1
+    waypoint_place_ids = ""
 
-dir_url = "https://www.google.com/maps/dir/?api=1"
-final_url = dir_url
-count = len(queries) - 1
-waypoint_place_ids = ""
+    for i, q in enumerate(queries):
+        if count == len(queries) - 1:
+            final_url += "&origin=" + quote(q) + "&origin_place_id=" + place_ids[i]
+        elif count == 0:
+            if len(queries) > 2:
+                final_url += waypoint_place_ids
+            final_url += "&destination=" + quote(q) + "&destination_place_id=" + place_ids[i] + "&travelmode=walking"
+        elif count == len(queries) - 2:
+            final_url += "&waypoints=" + quote(q)
+            waypoint_place_ids += "&waypoint_place_ids=" + place_ids[i]
+        else:
+            final_url += quote("|") + quote(q)
+            waypoint_place_ids += quote("|") + place_ids[i]
+        count -= 1
 
-for i, q in enumerate(queries):
-    if count == len(queries) - 1:
-        final_url += "&origin=" + quote(q) + "&origin_place_id=" + place_ids[i]
-    elif count == 0:
-        if len(queries) > 2:
-            final_url += waypoint_place_ids
-        final_url += "&destination=" + quote(q) + "&destination_place_id=" + place_ids[i] + "&travelmode=walking"
-    elif count == len(queries) - 2:
-        final_url += "&waypoints=" + quote(q)
-        waypoint_place_ids += "&waypoint_place_ids=" + place_ids[i]
-    else:
-        final_url += quote("|") + quote(q)
-        waypoint_place_ids += quote("|") + place_ids[i]
-    count -= 1
+    return final_url
 
-print(final_url)
+# print(get_url(queries))
 
