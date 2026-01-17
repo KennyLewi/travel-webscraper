@@ -59,9 +59,9 @@ async def scrap_urls(url_list):
 if __name__ == "__main__":
     # You can add one or many URLs here
     urls = [
-        # "https://www.tiktok.com/@human_edition/video/7569612755678891282",
+        "https://www.tiktok.com/@human_edition/video/7569612755678891282",
         # "https://www.tiktok.com/@davidteathercodes/video/7074717081563942186"
-        "https://www.tiktok.com/@cakes_n_ale/video/7563782866342038806",
+        # "https://www.tiktok.com/@cakes_n_ale/video/7563782866342038806",
     ]
 
     asyncio.run(scrap_urls(urls))
