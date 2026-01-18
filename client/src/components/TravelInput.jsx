@@ -133,8 +133,11 @@ export default function TravelInput({ className, loadingLogo }) {
         </form>
       </div>
 
-      {showItineraryLink && (
-        <a href="/itinerary" className="fixed bottom-6 right-6 bg-gray-300 text-gray-800 px-8 py-4 rounded-full shadow-md hover:bg-gray-500 hover:text-gray-900 transition-colors text-lg font-semibold z-50">
+      {showItineraryLink && !isLoading && (
+        <a 
+          href="/itinerary" 
+          className="fixed bottom-6 right-6 bg-gray-300 text-gray-800 px-8 py-4 rounded-full shadow-md hover:bg-gray-500 hover:text-gray-900 transition-colors text-lg font-semibold z-50"
+        >
           View Itinerary
         </a>
       )}
