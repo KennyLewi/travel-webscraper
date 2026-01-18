@@ -2,7 +2,7 @@
 
 Automatically turn TikTok travel videos into mapped itineraries
 
-[Demo Video](demo.mp4)
+[Demo Video](https://youtu.be/iG4sZG4R9oI)
 
 # 🚀 Overview
 
