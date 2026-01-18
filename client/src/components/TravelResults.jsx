@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 export default function TravelResults({ className }) {
   const navigate = useNavigate();
   const [selectedDay, setSelectedDay] = useState(0);
+  const [center, setCenter] = useState([]);
 
   // 1. Get the data
   const savedItinerary = localStorage.getItem("itineraryData");
@@ -41,9 +42,10 @@ export default function TravelResults({ className }) {
 
           <div className="w-full h-[400px] md:h-[550px] rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
             <Map 
+              key={center[0]}
               defaultZoom={13} 
               // Directly access the center from the current day object
-              center={{ lat: currentDay.center[0], lng: currentDay.center[1] }}
+              defaultCenter={{ lat: center[0], lng: center[1] }}
             >
               {currentDay.coordinates.map((pos, i) => (
                 <Marker 
@@ -76,10 +78,13 @@ export default function TravelResults({ className }) {
           
           {/* --- Tabs --- */}
           <div className="flex flex-wrap gap-2 mb-4">
-            {itineraryList.map((_, dayIndex) => (
+            {itineraryList.map((curr, dayIndex) => (
               <button
                 key={dayIndex}
-                onClick={() => setSelectedDay(dayIndex)}
+                onClick={() => {
+                  setSelectedDay(dayIndex)
+                  setCenter(curr.center)
+                }}
                 className={`px-4 py-2 rounded-xl font-semibold text-sm transition-colors ${
                   selectedDay === dayIndex
                     ? "bg-gray-800 text-white"
