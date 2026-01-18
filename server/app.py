@@ -66,7 +66,11 @@ def generate_itinerary():
     # all_on_screen = " ".join([text for d in travel_json_lst for text in d['on_screen_text']])
     # all_on_screen = " ".join(video_text)
 
+    print(audio_transcript, description, video_text)
+
     travel_sched = parser.get_locations(audio_transcript, description, video_text)
+
+    print(travel_sched)
     
     route_builder = RouteUrlBuilder(travel_sched)
     route_details = route_builder.get_full_travel_details()
