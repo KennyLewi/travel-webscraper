@@ -9,62 +9,99 @@ from route_url_builder.route_url_builder import RouteUrlBuilder
 import json
 import uuid
 import threading
+import concurrent.futures
 
 app = Flask(__name__)
 CORS(app)
 
 request_map = {} # maps uuid to response object
 
-def process_itinerary_task(job_id, data):
+def process_video_thread(i, link, job_id):
     """
-    Background worker that runs the heavy scraping logic
-    and updates the request_map upon completion.
+    Worker function to handle a single video.
+    Returns the processed text chunks for this specific video.
     """
     try:
-        print(f"[{job_id}] Starting processing for: {data}")
+        # Update status (Note: In a real app, use a lock for shared resources, 
+        # but for a simple dict update this is generally fine in Python)
+        request_map[job_id]["message"] = f"Processing video {i + 1}..."
         
-        # --- YOUR EXISTING LOGIC STARTS HERE ---
-        query = f" {data['place']} {data['days']} days itinerary"
+        # 1. Download
+        result = download_tiktok_video(link)
+        
+        # 2. Process (Transcribe & Extract)
+        # We format the strings here to keep the main logic clean
+        transcript_part = f" {i + 1}." + transcribe_video(result['filename'])
+        text_part = f" {i + 1}." + " ".join(fast_extract_text(result['filename']))
+        desc_part = f" {i + 1}." + result['desc']
+        
+        return {
+            "index": i,
+            "transcript": transcript_part,
+            "text": text_part,
+            "desc": desc_part
+        }
+    except Exception as e:
+        print(f"Error processing video {i}: {e}")
+        # Return empty strings so one failure doesn't break the whole itinerary
+        return {
+            "index": i, 
+            "transcript": "", 
+            "text": "", 
+            "desc": ""
+        }
 
+def process_itinerary_task(job_id, data):
+    try:
+        print(f"[{job_id}] Starting processing...")
+        
+        # ... (Your existing code to get links) ...
         scraper = TikTokLinkScraper()
+        query = f" {data['place']} {data['days']} days itinerary"
         links = scraper.get_links(query)
-        print(f"[{job_id}] Links found: {links}")
-
-        description = ""
-        audio_transcript = ""
-        video_text = ""
         
-        # Reduced range for safety in example, keep your logic
-        for i in range(min(len(links), 3)):
-            request_map[job_id] = {
-                "success": True,
-                "status": "processing",
-                "message": f"Working on tiktok video {i + 1} with link {links[i]}"
+        # Limit to 3 links
+        target_links = links[:3]
+        
+        # 1. Run threads in parallel
+        results = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+            # Create a list of future tasks
+            future_to_index = {
+                executor.submit(process_video_thread, i, link, job_id): i 
+                for i, link in enumerate(target_links)
             }
-            result = download_tiktok_video(links[i])
-            audio_transcript += f" {i + 1}." + transcribe_video(result['filename'])
-            video_text += f" {i + 1}." + " ".join(fast_extract_text(result['filename']))
-            description += f" {i + 1}." + result['desc']
+            
+            # Wait for all to complete
+            for future in concurrent.futures.as_completed(future_to_index):
+                results.append(future.result())
 
+        # 2. Sort results to maintain order (1, 2, 3)
+        # Since threads finish randomly, we must sort by the original index
+        results.sort(key=lambda x: x['index'])
+
+        # 3. Combine the results
+        audio_transcript = "".join(r['transcript'] for r in results)
+        video_text = "".join(r['text'] for r in results)
+        description = "".join(r['desc'] for r in results)
+
+        # 4. Continue with your parser logic
         parser = TravelTranscriptParser()
         travel_sched = parser.get_locations(audio_transcript, description, video_text)
-
+        
         route_builder = RouteUrlBuilder(travel_sched)
         route_details = route_builder.get_full_travel_details()
-        
         route_details_dict = [day.model_dump() for day in route_details]
-        # --- YOUR EXISTING LOGIC ENDS HERE ---
 
-        # Update map with success
         request_map[job_id] = {
             "success": True,
             "status": "completed",
             "itinerary": route_details_dict
         }
-        print(f"[{job_id}] Job completed successfully.")
+
+        print(f"Completed job with id {job_id}")
 
     except Exception as e:
-        # Catch errors so the user isn't stuck on "pending" forever
         print(f"[{job_id}] Error: {e}")
         request_map[job_id] = {
             "success": False,
