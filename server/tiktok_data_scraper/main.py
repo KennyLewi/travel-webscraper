@@ -1,10 +1,10 @@
 import asyncio
 from datetime import datetime
 import json
-from tiktokDownloader import download_video_stealth
-from tiktokData import get_data_by_url
-from tiktokTranscribe import get_audio_and_transcribe
-from videoTextExtractor import fast_extract_text
+from tiktok_data_scraper.tiktokDownloader import download_video_stealth
+from tiktok_data_scraper.tiktokData import get_data_by_url
+from tiktok_data_scraper.tiktokTranscribe import get_audio_and_transcribe
+from tiktok_data_scraper.videoTextExtractor import fast_extract_text
 
 
 async def process_single_tiktok(url):
@@ -15,21 +15,25 @@ async def process_single_tiktok(url):
     video_filename = f"video_{timestamp}.mp4"
     json_filename = f"data_{timestamp}.json"
 
+    transcript = ""
+    on_screen_text = ""
+
     # 1. Get Metadata
     print("\n[Step 1] Fetching Metadata...")
     metadata = await get_data_by_url(url)
 
     # 2. Download Video
-    print("\n[Step 2] Downloading Video...")
-    await download_video_stealth(url, output_name=video_filename)
+    # print("\n[Step 2] Downloading Video...")
+    # await download_video_stealth(url, output_name=video_filename)
 
     # 3. Transcribe Audio (Spoken Text)
     print("\n[Step 3] Transcribing Audio...")
     transcript = await get_audio_and_transcribe(url)
 
     # 4. Extract On-Screen Text (Visual Text)
-    print("\n[Step 4] Extracting On-Screen Text...")
-    on_screen_text = fast_extract_text(video_filename)
+    # print("\n[Step 4] Extracting On-Screen Text...")
+    # on_screen_text = fast_extract_text(video_filename)
+    
 
     # --- CONSOLIDATE DATA ---
     results = {
@@ -50,18 +54,28 @@ async def process_single_tiktok(url):
 
 
 async def scrap_urls(url_list):
-    for url in url_list:
-        try:
-            await process_single_tiktok(url)
-        except Exception as e:
-            print(f"[Error] Failed to process {url}: {e}")
+    result_lst = []
+    # for url in url_list:
+    #     try:
+    #         result = await process_single_tiktok(url)
+    #         result_lst.append(result)
+    #     except Exception as e:
+    #         print(f"[Error] Failed to process {url}: {e}")
+
+    try:
+        result = await process_single_tiktok(url_list[0])
+        result_lst.append(result)
+    except Exception as e:
+        print(f"[Error] Failed to process {url_list[0]}: {e}")
+
+    return result_lst
 
 if __name__ == "__main__":
     # You can add one or many URLs here
     urls = [
-        # "https://www.tiktok.com/@human_edition/video/7569612755678891282",
+        "https://www.tiktok.com/@human_edition/video/7569612755678891282",
         # "https://www.tiktok.com/@davidteathercodes/video/7074717081563942186"
-        "https://www.tiktok.com/@cakes_n_ale/video/7563782866342038806",
+        # "https://www.tiktok.com/@cakes_n_ale/video/7563782866342038806",
     ]
 
     asyncio.run(scrap_urls(urls))

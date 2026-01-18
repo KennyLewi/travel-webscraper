@@ -11,10 +11,11 @@ class TikTokLinkScraper:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
 
-            url = 'https://www.tiktok.com/search?q=' + quote(query)
+            url = 'https://www.tiktok.com/search?q=' + quote(query) + '&lang=en'
+            print(url)
             page.goto(url)
 
-            page.wait_for_load_state("networkidle", timeout=10000)
+            page.wait_for_load_state("networkidle", timeout=30000)
 
             divs = page.query_selector_all('div[data-e2e="search_top-item"]')
 

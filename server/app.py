@@ -1,5 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from tiktok_link_scraper.tiktok_link_scraper import TikTokLinkScraper
+from tiktok_data_scraper.tiktokScrapper import download_tiktok_video
+from tiktok_data_scraper.transcribeAudio import transcribe_video
+from tiktok_data_scraper.videoTextExtractor import fast_extract_text
+from parsers.travel_transcript_parser import TravelTranscriptParser
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -31,6 +37,42 @@ def generate_itinerary():
     """
     data = request.json
     print(f"Request received: {data}")
+    query = f" {data['place']} {data['days']} days itinerary"
+
+    scraper = TikTokLinkScraper()
+    links = scraper.get_links(query)
+    print(links)
+
+    # desc = get_tiktok_data(links[0])
+    description = ""
+    audio_transcript = ""
+    video_text = ""
+    for i in range(min(len(links), 3)):
+        result = download_tiktok_video(links[i])
+        # print(result)
+        audio_transcript += f" {i + 1}." + transcribe_video(result['filename'])
+        # print(audio_transcript)
+        video_text += f" {i + 1}." + " ".join(fast_extract_text(result['filename']))
+        # print(video_text)
+        description += f" {i + 1}." + result['desc']
+
+    # travel_json_lst = asyncio.run(scrap_urls(links))
+
+    parser = TravelTranscriptParser()
+
+    # # for loop to merge description, audio transcript and OCR texts into one long string
+    # all_desc = " ".join([d['metadata']['desc'] for d in travel_json_lst])
+    # all_audio = " ".join([d['audio_transcript'] for d in travel_json_lst])
+    # all_on_screen = " ".join([text for d in travel_json_lst for text in d['on_screen_text']])
+    # all_on_screen = " ".join(video_text)
+
+    plans = parser.get_locations(audio_transcript, description, video_text)
+    plans_as_dicts = [day.model_dump() for day in plans]
+    json_str = json.dumps(plans_as_dicts, indent=2)
+
+    # goes through the list to get their string 
+    return json_str
+    # return jsonify({"places": ["Marina Bay Sands", "Art Science Museum", "National University of Singapore"]})
 
     # Your specific stub response
     stub_itinerary = [
@@ -113,3 +155,6 @@ def generate_itinerary():
         "success": True,
         "itinerary": stub_itinerary
     })
+
+if __name__ == "__main__":
+    print("server started")

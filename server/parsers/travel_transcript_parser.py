@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+import os
 
 load_dotenv()
 
@@ -25,7 +26,7 @@ class TravelTranscriptParser:
     def __init__(self):
         api_key = os.getenv("GEMINI_API_KEY")
         self._client = genai.Client(api_key=api_key)
-        self._model = "gemini-2.5-flash-lite"
+        self._model = "gemini-3-flash-preview"
         self._instructions = (
             "You are an expert travel itinerary planner. Your goal is to transform transcripts, "
             "video descriptions, and OCR text into a structured daily schedule.\n\n"
