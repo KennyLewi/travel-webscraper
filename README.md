@@ -1,6 +1,8 @@
 # PlaneFella ✈️
 
-Automatically turn TikTok travel videos into mapped itineraries
+**See our devpost [here](https://devpost.com/software/planefella-156sp4)**
+
+Automatically turn TikTok travel videos into mapped itineraries.
 
 [Demo Video](https://youtu.be/iG4sZG4R9oI)
 
