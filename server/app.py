@@ -131,26 +131,81 @@ def generate_itinerary():
     thread.start()
 
     # 4. Return immediately with the Job ID
-    return jsonify({
-        "success": True,
-        "job_id": job_id,
-        "status": "pending"
-    })
+    # return jsonify({
+    #     "success": True,
+    #     "job_id": job_id,
+    #     "status": "pending"
+    # })
 
     # Your specific stub response
     stub_itinerary = [
         {
+            "center": [
+                1.2850739166666667,
+                103.86060658333334
+            ],
+            "coordinates": [
+                [
+                    1.2867449,
+                    103.85438719999999
+                ],
+                [
+                    1.2874774,
+                    103.86063259999999
+                ],
+                [
+                    1.2862738,
+                    103.8592663
+                ],
+                [
+                    1.2836889,
+                    103.85918459999999
+                ],
+                [
+                    1.2838676999999998,
+                    103.8660024
+                ],
+                [
+                    1.2823908,
+                    103.8641664
+                ]
+            ],
             "day_number": 1,
             "locations": [
-                {"name": "174 Bingo", "description": "Start the trip with artisanal pastries and coffee in a cozy Joo Chiat bakery.", "estimated_duration_minutes": 60},
-                {"name": "Henderson Waves", "description": "A scenic walk across the tallest pedestrian bridge in Singapore, connecting green spaces.", "estimated_duration_minutes": 90},
-                {"name": "TANCHEN Studio", "description": "A creative workshop and shop specializing in unique handcrafted textiles.", "estimated_duration_minutes": 45},
-                {"name": "Marina Barrage", "description": "Sunset picnic and kite flying on the rooftop garden with city skyline views.", "estimated_duration_minutes": 120}
+                {
+                    "description": "Start your Marina Bay walk at this iconic landmark for the best views of the city skyline.",
+                    "estimated_duration_minutes": 45,
+                    "name": "Merlion Park"
+                },
+                {
+                    "description": "Walk across this uniquely designed pedestrian bridge that connects Marina Centre with Marina South.",
+                    "estimated_duration_minutes": 20,
+                    "name": "Helix Bridge"
+                },
+                {
+                    "description": "Explore the fascinating intersection of art, science, culture, and technology through immersive exhibits.",
+                    "estimated_duration_minutes": 90,
+                    "name": "ArtScience Museum"
+                },
+                {
+                    "description": "Browse luxury brands and enjoy the modern architecture of this premier shopping destination.",
+                    "estimated_duration_minutes": 60,
+                    "name": "The Shoppes at Marina Bay Sands"
+                },
+                {
+                    "description": "Visit these two massive glass greenhouses to see exotic plants and one of the world's tallest indoor waterfalls.",
+                    "estimated_duration_minutes": 120,
+                    "name": "Cloud Forest and Flower Dome"
+                },
+                {
+                    "description": "Take a walk among the Supertrees at Gardens by the Bay for incredible aerial views.",
+                    "estimated_duration_minutes": 30,
+                    "name": "OCBC Skyway"
+                }
             ],
-            "coordinates": [[1.3121, 103.9023], [1.2761, 103.8152], [1.3115, 103.9015], [1.2808, 103.8711]],
-            "center": [1.2951, 103.8725],
-            "route_url": "http://google.com/maps/dir/..."
+            "route_url": "https://www.google.com/maps/dir/?api=1&origin=Merlion%20Park&origin_place_id=ChIJBTYg1g4Z2jERp_MBbu5erWY&waypoints=The%20Helix%20Bridge%7CArtScience%20Museum%7CThe%20Shoppes%20at%20Marina%20Bay%20Sands%7CCloud%20Forest&waypoint_place_ids=ChIJT4AHFwcZ2jERDJbPVLTEbOk%7CChIJnWdQKQQZ2jERScXuKeFHyIE%7CChIJuzb5KOYZ2jERLUHxHfP7ApY%7CChIJd0VihwEZ2jERKeREhO6G1Qg&destination=OCBC%20Skyway&destination_place_id=ChIJUbO-TQAZ2jERPEczb5E75Jo&travelmode=driving"
         },
+
         {
             "day_number": 2,
             "locations": [

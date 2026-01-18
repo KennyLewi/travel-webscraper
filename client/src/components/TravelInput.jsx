@@ -17,9 +17,8 @@ export default function TravelInput({ className, loadingLogo }) {
               "Content-type": "application/json; charset=UTF-8"
           },
           body: JSON.stringify({
-            "video_transcript": "string",
-            "video_description": "string",
-            "ocr_transcript": "string"
+            "days": 3,
+            "location": "Singapore"
           })
         }
       ).then(res => res.json());

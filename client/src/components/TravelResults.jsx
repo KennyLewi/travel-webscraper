@@ -5,6 +5,7 @@ export default function TravelResults({className}) {
   const mapRef = useRef(null);
 
   const [selectedDay, setSelectedDay] = useState(0);
+  const [center, setCenter] = useState([]);
 
   const savedItinerary = localStorage.getItem("itineraryData");
   const places = [];
@@ -41,6 +42,7 @@ export default function TravelResults({className}) {
         if (day.center) {
           centers.push(day.center)
         }
+        setCenter(centers[selectedDay])
     });
   }
 
@@ -57,7 +59,7 @@ export default function TravelResults({className}) {
           id="map"
           className="w-full h-[400px] md:h-[550px] rounded-2xl shadow-lg border border-gray-200"
         >
-          <Map defaultZoom={14} center={{ lat: centers[selectedDay][0], lng: centers[selectedDay][1] }}>
+          <Map key={center[0]} defaultZoom={14} defaultCenter={{ lat: center[0], lng: center[1] }}>
             {coordinates[selectedDay].map((pos, i) => (
               <Marker key={i} position={{ lat: pos[0], lng: pos[1] }} title={pos.name} />
             ))}
@@ -85,7 +87,10 @@ export default function TravelResults({className}) {
               {places.map((_, dayIndex) => (
                 <button
                   key={dayIndex}
-                  onClick={() => setSelectedDay(dayIndex)}
+                  onClick={() => {
+                    setSelectedDay(dayIndex)
+                    setCenter(centers[selectedDay])
+                  }}
                   className={`px-4 py-2 rounded-xl font-semibold text-sm ${
                     selectedDay === dayIndex
                       ? "bg-gray-800 text-white"
