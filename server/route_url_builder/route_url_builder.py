@@ -93,11 +93,16 @@ class RouteUrlBuilder:
         for day_plan in self._travel_sched:
             self._day_information_list.append(self._get_places(day_plan))
 
-    def get_travel_routes(self):
+    def get_full_travel_details(self):
         sched_with_routes = copy.deepcopy(self._travel_sched)
 
         for i, day_plan in enumerate(sched_with_routes):
             url = self._get_url(i + 1)
+            coords_list = self._get_coordinates(i + 1)
+            coords_center = self._get_coordinate_center(i + 1)
+
+            day_plan.coordinates = coords_list
+            day_plan.center = coords_center
             day_plan.route_url = url
             
         return sched_with_routes
@@ -161,7 +166,7 @@ class RouteUrlBuilder:
         return self._day_information_list[day_number - 1][2]
     
     def _get_coordinate_center(self, day_number):
-        place_locations = self.get_coordinates(day_number)
+        place_locations = self._get_coordinates(day_number)
 
         sum_lat = sum(lat for lat, _ in place_locations)
         sum_lon = sum(lon for _, lon in place_locations)
@@ -175,4 +180,4 @@ class RouteUrlBuilder:
 if __name__ == "__main__":
     parsed_response = TravelSchedule(schedule=sample_response)
     r = RouteUrlBuilder(parsed_response.schedule)
-    print(r.get_travel_routes())
+    print(r.get_full_travel_details())

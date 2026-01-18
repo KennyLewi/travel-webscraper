@@ -5,6 +5,7 @@ from tiktok_data_scraper.tiktokScrapper import download_tiktok_video
 from tiktok_data_scraper.transcribeAudio import transcribe_video
 from tiktok_data_scraper.videoTextExtractor import fast_extract_text
 from parsers.travel_transcript_parser import TravelTranscriptParser
+from route_url_builder.route_url_builder import RouteUrlBuilder
 import json
 
 app = Flask(__name__)
@@ -17,9 +18,8 @@ def generate_itinerary():
     
     Expected Request JSON:
     {
-        "video_transcript": "string",
-        "video_description": "string",
-        "ocr_transcript": "string"
+        "days": int
+        "location": str
     }
 
     Example JSON Response (Success):
@@ -66,88 +66,54 @@ def generate_itinerary():
     # all_on_screen = " ".join([text for d in travel_json_lst for text in d['on_screen_text']])
     # all_on_screen = " ".join(video_text)
 
-    plans = parser.get_locations(audio_transcript, description, video_text)
-    plans_as_dicts = [day.model_dump() for day in plans]
-    json_str = json.dumps(plans_as_dicts, indent=2)
+    travel_sched = parser.get_locations(audio_transcript, description, video_text)
+    
+    route_builder = RouteUrlBuilder(travel_sched)
+    route_details = route_builder.get_full_travel_details()
+    
+    route_details_dict = [day.model_dump() for day in route_details]
 
-    # goes through the list to get their string 
-    return json_str
-    # return jsonify({"places": ["Marina Bay Sands", "Art Science Museum", "National University of Singapore"]})
+    return jsonify({
+        "success": True,
+        "itinerary": route_details_dict
+    })
 
     # Your specific stub response
     stub_itinerary = [
         {
             "day_number": 1,
             "locations": [
-                {
-                    "name": "174 Bingo",
-                    "description": "Start the trip with artisanal pastries and coffee in a cozy Joo Chiat bakery.",
-                    "estimated_duration_minutes": 60
-                },
-                {
-                    "name": "Henderson Waves",
-                    "description": "A scenic walk across the tallest pedestrian bridge in Singapore, connecting green spaces.",
-                    "estimated_duration_minutes": 90
-                },
-                {
-                    "name": "TANCHEN Studio",
-                    "description": "A creative workshop and shop specializing in unique handcrafted textiles.",
-                    "estimated_duration_minutes": 45
-                },
-                {
-                    "name": "Marina Barrage",
-                    "description": "Sunset picnic and kite flying on the rooftop garden with city skyline views.",
-                    "estimated_duration_minutes": 120
-                }
+                {"name": "174 Bingo", "description": "Start the trip with artisanal pastries and coffee in a cozy Joo Chiat bakery.", "estimated_duration_minutes": 60},
+                {"name": "Henderson Waves", "description": "A scenic walk across the tallest pedestrian bridge in Singapore, connecting green spaces.", "estimated_duration_minutes": 90},
+                {"name": "TANCHEN Studio", "description": "A creative workshop and shop specializing in unique handcrafted textiles.", "estimated_duration_minutes": 45},
+                {"name": "Marina Barrage", "description": "Sunset picnic and kite flying on the rooftop garden with city skyline views.", "estimated_duration_minutes": 120}
             ],
-            "route_url": "https://www.google.com/maps/dir/?api=1&origin=174BINGO&origin_place_id=ChIJJbm7jjcZ2jER78JnJknmuN4&waypoints=Henderson%20Waves%7CTANCHEN%20Studio&waypoint_place_ids=ChIJeXrAvBcb2jERhWAujA0K0LE%7CChIJxy80EM8Z2jERJ-5r4PuSGZo&destination=Marina%20Barrage&destination_place_id=ChIJ50uIMa0Z2jER0cTt5fLaZt0&travelmode=driving"
+            "coordinates": [[1.3121, 103.9023], [1.2761, 103.8152], [1.3115, 103.9015], [1.2808, 103.8711]],
+            "center": [1.2951, 103.8725],
+            "route_url": "http://google.com/maps/dir/..."
         },
         {
             "day_number": 2,
             "locations": [
-                {
-                    "name": "Maxwell Food Centre",
-                    "description": "A legendary hawker center; try the famous Tian Tian Hainanese Chicken Rice.",
-                    "estimated_duration_minutes": 60
-                },
-                {
-                    "name": "KADA",
-                    "description": "Visit this unique wellness hub and cafe located in a historic 101-year-old hospital.",
-                    "estimated_duration_minutes": 90
-                },
-                {
-                    "name": "Corner Corner",
-                    "description": "Unwind in Duxton with specialty Japanese tea and a curated vinyl collection.",
-                    "estimated_duration_minutes": 60
-                },
-                {
-                    "name": "Gardens by the Bay",
-                    "description": "Explore the Flower Dome and Cloud Forest before the nightly Supertree Grove light show.",
-                    "estimated_duration_minutes": 180
-                }
+                {"name": "Maxwell Food Centre", "description": "A legendary hawker center; try the famous Tian Tian Hainanese Chicken Rice.", "estimated_duration_minutes": 60},
+                {"name": "KADA", "description": "Visit this unique wellness hub and cafe located in a historic 101-year-old hospital.", "estimated_duration_minutes": 90},
+                {"name": "Corner Corner", "description": "Unwind in Duxton with specialty Japanese tea and a curated vinyl collection.", "estimated_duration_minutes": 60},
+                {"name": "Gardens by the Bay", "description": "Explore the Flower Dome and Cloud Forest before the nightly Supertree Grove light show.", "estimated_duration_minutes": 180}
             ],
-            "route_url": "https://www.google.com/maps/dir/?api=1&origin=Maxwell%20Food%20Centre&origin_place_id=ChIJseQsTQ0Z2jERqpBTWF0Zf84&waypoints=Kada%7CCorner%20Corner%20%28Coffee%20Concept%29&waypoint_place_ids=ChIJ8W0UHwAZ2jERPiAUP4JyR-M%7CChIJb_7hPWAZ2jERQ30PkQx3MpQ&destination=Gardens%20by%20the%20Bay&destination_place_id=ChIJMxZ-kwQZ2jERdsqftXeWCWI&travelmode=driving"
+            "coordinates": [[1.2803, 103.8447], [1.2825, 103.8431], [1.2798, 103.8415], [1.2816, 103.8636]],
+            "center": [1.2810, 103.8482],
+            "route_url": "http://google.com/maps/dir/..."
         },
         {
             "day_number": 3,
             "locations": [
-                {
-                    "name": "Fort Canning Park",
-                    "description": "A historic hilltop park with the famous Sang Nila Utama Garden and spiral staircase.",
-                    "estimated_duration_minutes": 90
-                },
-                {
-                    "name": "National Gallery Singapore",
-                    "description": "The world's largest public collection of Singapore and Southeast Asian modern art.",
-                    "estimated_duration_minutes": 150
-                },
-                {
-                    "name": "ArtScience Museum",
-                    "description": "An iconic lotus-inspired building featuring the immersive 'Future World' exhibition.",
-                    "estimated_duration_minutes": 120
-                }
+                {"name": "Fort Canning Park", "description": "A historic hilltop park with the famous Sang Nila Utama Garden and spiral staircase.", "estimated_duration_minutes": 90},
+                {"name": "National Gallery Singapore", "description": "The world's largest public collection of Singapore and Southeast Asian modern art.", "estimated_duration_minutes": 150},
+                {"name": "ArtScience Museum", "description": "An iconic lotus-inspired building featuring the immersive 'Future World' exhibition.", "estimated_duration_minutes": 120}
             ],
-            "route_url": "https://www.google.com/maps/dir/?api=1&origin=Fort%20Canning%20Park&origin_place_id=ChIJVSYjJKIZ2jERpRFinATD52s&waypoints=National%20Gallery%20Singapore&waypoint_place_ids=ChIJFQzeR6cZ2jERgM6--iWeY-U&destination=ArtScience%20Museum&destination_place_id=ChIJnWdQKQQZ2jERScXuKeFHyIE&travelmode=driving"
+            "coordinates": [[1.2951, 103.8466], [1.2903, 103.8519], [1.2863, 103.8592]],
+            "center": [1.2905, 103.8525],
+            "route_url": "http://google.com/maps/dir/..."
         }
     ]
 
