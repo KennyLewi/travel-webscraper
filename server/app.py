@@ -7,9 +7,88 @@ from tiktok_data_scraper.videoTextExtractor import fast_extract_text
 from parsers.travel_transcript_parser import TravelTranscriptParser
 from route_url_builder.route_url_builder import RouteUrlBuilder
 import json
+import uuid
+import threading
 
 app = Flask(__name__)
 CORS(app)
+
+request_map = {} # maps uuid to response object
+
+def process_itinerary_task(job_id, data):
+    """
+    Background worker that runs the heavy scraping logic
+    and updates the request_map upon completion.
+    """
+    try:
+        print(f"[{job_id}] Starting processing for: {data}")
+        
+        # --- YOUR EXISTING LOGIC STARTS HERE ---
+        query = f" {data['place']} {data['days']} days itinerary"
+
+        scraper = TikTokLinkScraper()
+        links = scraper.get_links(query)
+        print(f"[{job_id}] Links found: {links}")
+
+        description = ""
+        audio_transcript = ""
+        video_text = ""
+        
+        # Reduced range for safety in example, keep your logic
+        for i in range(min(len(links), 3)):
+            request_map[job_id] = {
+                "success": True,
+                "status": "processing",
+                "message": f"Working on tiktok video {i + 1} with link {links[i]}"
+            }
+            result = download_tiktok_video(links[i])
+            audio_transcript += f" {i + 1}." + transcribe_video(result['filename'])
+            video_text += f" {i + 1}." + " ".join(fast_extract_text(result['filename']))
+            description += f" {i + 1}." + result['desc']
+
+        parser = TravelTranscriptParser()
+        travel_sched = parser.get_locations(audio_transcript, description, video_text)
+
+        route_builder = RouteUrlBuilder(travel_sched)
+        route_details = route_builder.get_full_travel_details()
+        
+        route_details_dict = [day.model_dump() for day in route_details]
+        # --- YOUR EXISTING LOGIC ENDS HERE ---
+
+        # Update map with success
+        request_map[job_id] = {
+            "success": True,
+            "status": "completed",
+            "itinerary": route_details_dict
+        }
+        print(f"[{job_id}] Job completed successfully.")
+
+    except Exception as e:
+        # Catch errors so the user isn't stuck on "pending" forever
+        print(f"[{job_id}] Error: {e}")
+        request_map[job_id] = {
+            "success": False,
+            "status": "failed",
+            "error": str(e)
+        }
+
+"""
+Response
+{
+    "success": true,
+    "status": "completed",
+    "itinerary": [
+        {
+            "day_number": 1,
+            "locations": [...],
+            "coordinates": [[float, float], ...],
+            "center": [float, float],
+            "route_url": string
+        },
+        ...
+    ]
+}
+"""
 
 @app.route("/api/generate-itinerary", methods=["POST"])
 def generate_itinerary():
@@ -35,51 +114,27 @@ def generate_itinerary():
         ]
     }
     """
+    # 1. Generate the Job ID
+    job_id = str(uuid.uuid4())
+
+    # 2. Set initial "pending" state
+    request_map[job_id] = {
+        "success": True,
+        "job_id": job_id,
+        "status": "pending"
+    }
+
+    # 3. Start the background thread
     data = request.json
-    print(f"Request received: {data}")
-    query = f" {data['place']} {data['days']} days itinerary"
+    thread = threading.Thread(target=process_itinerary_task, args=(job_id, data))
+    thread.daemon = True # Ensures thread dies if the main app quits
+    thread.start()
 
-    scraper = TikTokLinkScraper()
-    links = scraper.get_links(query)
-    print(links)
-
-    # desc = get_tiktok_data(links[0])
-    description = ""
-    audio_transcript = ""
-    video_text = ""
-    for i in range(min(len(links), 3)):
-        result = download_tiktok_video(links[i])
-        # print(result)
-        audio_transcript += f" {i + 1}." + transcribe_video(result['filename'])
-        # print(audio_transcript)
-        video_text += f" {i + 1}." + " ".join(fast_extract_text(result['filename']))
-        # print(video_text)
-        description += f" {i + 1}." + result['desc']
-
-    # travel_json_lst = asyncio.run(scrap_urls(links))
-
-    parser = TravelTranscriptParser()
-
-    # # for loop to merge description, audio transcript and OCR texts into one long string
-    # all_desc = " ".join([d['metadata']['desc'] for d in travel_json_lst])
-    # all_audio = " ".join([d['audio_transcript'] for d in travel_json_lst])
-    # all_on_screen = " ".join([text for d in travel_json_lst for text in d['on_screen_text']])
-    # all_on_screen = " ".join(video_text)
-
-    print(audio_transcript, description, video_text)
-
-    travel_sched = parser.get_locations(audio_transcript, description, video_text)
-
-    print(travel_sched)
-    
-    route_builder = RouteUrlBuilder(travel_sched)
-    route_details = route_builder.get_full_travel_details()
-    
-    route_details_dict = [day.model_dump() for day in route_details]
-
+    # 4. Return immediately with the Job ID
     return jsonify({
         "success": True,
-        "itinerary": route_details_dict
+        "job_id": job_id,
+        "status": "pending"
     })
 
     # Your specific stub response
@@ -125,6 +180,18 @@ def generate_itinerary():
         "success": True,
         "itinerary": stub_itinerary
     })
+
+@app.route("/api/itinerary-status/<job_id>", methods=["GET"])
+def itinerary_status(job_id):
+    """
+    Client polls this endpoint to see if the job is done.
+    """
+    result = request_map.get(job_id)
+    
+    if not result:
+        return jsonify({"success": False, "error": "Job ID not found"}), 404
+        
+    return jsonify(result)
 
 if __name__ == "__main__":
     print("server started")
