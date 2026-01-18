@@ -16,6 +16,8 @@ class Location(BaseModel):
 class DayPlan(BaseModel):
     day_number: int
     locations: list[Location]
+    coordinates: Optional[list[list[float]]] = None
+    center: Optional[list[float]] = None
     route_url: Optional[str] = None
 
 class TravelSchedule(BaseModel):
@@ -49,7 +51,7 @@ class TravelTranscriptParser:
             
             "5. DESCRIPTIONS: Write a 1 sentence summary of what to do there based on the video content."
 
-            "6. ROUTE_URL: Leave the 'route_url' field empty."
+            "6. OPTIONAL FIELDS: Leave the fields 'route_url', 'coordinates' and 'center' null."
         )
 
     def get_locations(self, video_transcript: str, video_description: str, ocr_transcript: str) -> list[DayPlan]:
